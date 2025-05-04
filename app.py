@@ -259,3 +259,4 @@ if __name__ == "__main__":
         with open(secrets_path, "w") as f:
             f.write("admin_mode = false\n")
     main()
+    #finalyy finish...............
