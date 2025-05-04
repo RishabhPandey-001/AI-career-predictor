@@ -150,11 +150,15 @@ def main():
     # Styling
     st.markdown("""
     <style>
-        .stApp { background-color: #f9f9f9; }
-        h1, h2, h3 { color: #003366; }
-        .my-text { color: black; }
+        body, h1, h2, h3, p {
+            color: black !important;  /* Ensure text color is visible */
+        }
+        .stApp {
+            background-color: #f9f9f9 !important; /* Set background color */
+        }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
 
     st.title("🎯 AI-Powered Career Prediction System")
     st.markdown("Unlock your ideal career path based on your skills, interests, and education.")
