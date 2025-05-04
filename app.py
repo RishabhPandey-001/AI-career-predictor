@@ -10,6 +10,15 @@ import joblib
 import difflib
 import datetime
 from pathlib import Path
+import streamlit as st
+import streamlit.components.v1 as components
+
+html_content = """
+<h1>This is a test HTML heading</h1>
+<p>If this shows, then the problem might be with your original HTML.</p>
+"""
+
+components.html(html_content, height=200)
 
 # Configuration
 DATA_FILE = "final_fixed_enriched_data.csv"
