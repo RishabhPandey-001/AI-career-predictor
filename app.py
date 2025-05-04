@@ -10,15 +10,10 @@ import joblib
 import difflib
 import datetime
 from pathlib import Path
-import streamlit as st
 import streamlit.components.v1 as components
 
-html_content = """
-<h1>This is a test HTML heading</h1>
-<p>If this shows, then the problem might be with your original HTML.</p>
-"""
-
-components.html(html_content, height=200)
+# ✅ MUST BE FIRST STREAMLIT COMMAND
+st.set_page_config(page_title="AI Career Advisor", layout="wide")
 
 # Configuration
 DATA_FILE = "final_fixed_enriched_data.csv"
@@ -26,7 +21,7 @@ MODEL_FILE = "career_model.pkl"
 FEEDBACK_FILE = "user_feedback.csv"
 RETRAIN_INTERVAL = 7  # days
 
-# Data loading with continuous learning support
+# Load data
 def load_data():
     if Path(DATA_FILE).exists():
         try:
@@ -35,7 +30,7 @@ def load_data():
             df['experience'] = df['experience'].fillna(0).astype(str)
             skill_cols = ['skill_1', 'skill_2', 'skill_3', 'skill_4']
             df['skills_combined'] = df[skill_cols].apply(lambda x: ','.join(x.dropna().astype(str)), axis=1)
-            df.columns = df.columns.str.strip()  # Keep original casing and special chars
+            df.columns = df.columns.str.strip()
         except Exception as e:
             st.error(f"Error loading data file: {str(e)}")
             df = pd.DataFrame()
@@ -61,7 +56,7 @@ def load_data():
 
     return df, feedback_df
 
-# Save feedback to CSV
+# Save feedback
 def save_feedback(feedback_df, feedback_data):
     feedback_data['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     updated_feedback = pd.concat([feedback_df, pd.DataFrame([feedback_data])], ignore_index=True)
@@ -107,7 +102,7 @@ def train_model(df, retrain=False):
         return None
 
     preprocessor = ColumnTransformer(
-        transformers=[ 
+        transformers=[
             ('education', OneHotEncoder(handle_unknown='ignore'), ['education_level']),
             ('skills', TfidfVectorizer(), 'skills_combined'),
             ('experience', OneHotEncoder(handle_unknown='ignore'), ['experience']),
@@ -132,12 +127,11 @@ def train_model(df, retrain=False):
     ])
 
     try:
-        X = df[[ 
-            'education_level', 'skills_combined', 'experience', 
-            'logical_quotient_rating', 'coding_skills_rating',
-            'self-learning_capability?', 'interested_technology', 
-            'type_of_company', 'management_or_technical',
-            'interested_career_area']]
+        X = df[['education_level', 'skills_combined', 'experience', 
+                'logical_quotient_rating', 'coding_skills_rating',
+                'self-learning_capability?', 'interested_technology', 
+                'type_of_company', 'management_or_technical', 
+                'interested_career_area']]
         y = df['suggested_job_role']
         model.fit(X, y)
         joblib.dump((model, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")), MODEL_FILE)
@@ -148,17 +142,17 @@ def train_model(df, retrain=False):
 
 # Main app
 def main():
-    st.set_page_config(page_title="AI Career Advisor", layout="wide")
-
     df, feedback_df = load_data()
     if df.empty:
         st.error("No data available for training")
         return
 
+    # Styling
     st.markdown("""
     <style>
         .stApp { background-color: #f9f9f9; }
         h1, h2, h3 { color: #003366; }
+        .my-text { color: black; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -261,6 +255,7 @@ def main():
                 st.error(f"Prediction failed: {str(e)}")
                 st.info("Please try again later.")
 
+# Entry point
 if __name__ == "__main__":
     secrets_path = Path(".streamlit/secrets.toml")
     if not secrets_path.exists():
@@ -268,4 +263,3 @@ if __name__ == "__main__":
         with open(secrets_path, "w") as f:
             f.write("admin_mode = false\n")
     main()
-    #finalyy finish...............
